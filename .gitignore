@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnpm/
+.yarn/
+.bun/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.swn
+*.swo
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.next/
+out/
+coverage/
+
+# Misc
+*.log
+*.pid
+*.seed
+*.pid.lock
