@@ -12,6 +12,12 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a description'],
     },
+      dependencies: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
 
     // Required UI image (main image for the task)
     uiImage: {
