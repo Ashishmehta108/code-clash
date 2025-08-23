@@ -37,11 +37,11 @@ exports.validateCreateTask = validate([
     .trim()
     .notEmpty().withMessage('Title is required')
     .isLength({ max: 100 }).withMessage('Title cannot be more than 100 characters'),
-    
+
   body('description')
     .trim()
     .notEmpty().withMessage('Description is required'),
-    
+
   body('dependencies')
     .optional({ checkFalsy: true })
     .isArray().withMessage('Dependencies must be an array')
@@ -49,7 +49,7 @@ exports.validateCreateTask = validate([
       if (!Array.isArray(deps)) return true;
       return deps.every(dep => typeof dep === 'string');
     }).withMessage('Each dependency must be a string'),
-    
+
   body('assets')
     .optional({ checkFalsy: true })
     .isObject().withMessage('Assets must be an object')
@@ -57,23 +57,23 @@ exports.validateCreateTask = validate([
       if (!assets) return {};
       return assets;
     }),
-    
+
   body('assets.logo')
     .optional({ checkFalsy: true })
     .isString().withMessage('Logo must be a string'),
-    
+
   body('assets.fontSize')
     .optional({ checkFalsy: true })
     .isString().withMessage('Font size must be a string'),
-    
+
   body('difficulty')
     .optional({ checkFalsy: true })
     .isIn(['easy', 'medium', 'hard']).withMessage('Difficulty must be one of: easy, medium, hard'),
-    
+
   body('points')
     .optional({ checkFalsy: true })
     .isInt({ min: 0 }).withMessage('Points must be a positive integer'),
-    
+
   // body('testCases')
   //   .optional({ checkFalsy: true })
   //   .isArray().withMessage('Test cases must be an array')
@@ -88,17 +88,16 @@ exports.validateCreateTask = validate([
   //   }).withMessage('Each test case must have input and expectedOutput')
 ]);
 
-// Task update validation rules
 exports.validateUpdateTask = validate([
   param('id')
     .custom(validateObjectId)
     .withMessage('Invalid task ID format'),
-    
+
   body('title')
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ max: 100 }).withMessage('Title cannot be more than 100 characters'),
-    
+
   body('dependencies')
     .optional({ checkFalsy: true })
     .isArray().withMessage('Dependencies must be an array')
@@ -106,15 +105,11 @@ exports.validateUpdateTask = validate([
       if (!Array.isArray(deps)) return true;
       return deps.every(dep => typeof dep === 'string');
     }).withMessage('Each dependency must be a string'),
-    
-  body('assets')
-    .optional({ checkFalsy: true })
-    .isObject().withMessage('Assets must be an object'),
-    
+
   body('difficulty')
     .optional({ checkFalsy: true })
     .isIn(['easy', 'medium', 'hard']).withMessage('Difficulty must be one of: easy, medium, hard'),
-    
+
   body('points')
     .optional({ checkFalsy: true })
     .isInt({ min: 0 }).withMessage('Points must be a positive integer')

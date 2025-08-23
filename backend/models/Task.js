@@ -12,31 +12,42 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a description'],
     },
-    dependencies: [
+    subTasks: [
       {
-        type: String,
-        trim: true,
+        element: {
+          type: String, // e.g. "h1", "button", "div"
+          required: true,
+        },
+        text: {
+          type: String, // e.g. "Welcome to CodeClash"
+          default: "",
+        },
+        styles: {
+          fontSize: {
+            type: String, // e.g. "24px" or "2rem"
+            default: "",
+          },
+          color: {
+            type: String, // e.g. "#333" or "red"
+            default: "",
+          },
+          fontWeight: {
+            type: String, // e.g. "bold", "400"
+            default: "",
+          },
+          backgroundColor: {
+            type: String,
+            default: "",
+          },
+          // you can add more CSS-like properties here
+        },
+        isRequired: {
+          type: Boolean,
+          default: true,
+        },
       },
     ],
-    assets: {
-      logo: {
-        type: String,
-        default: '',
-      },
-      image:{
-        type: String,
-        default: '',
-      },
-      fontSize: {
-        type: String,
-        default: '16px',
-      },
-      fontFamily: {
-        type: String,
-        default: 'Arial, sans-serif',
-    },
 
-  },
     difficulty: {
       type: String,
       enum: ['easy', 'medium', 'hard'],
@@ -46,23 +57,6 @@ const taskSchema = new mongoose.Schema(
       type: Number,
       default: 10,
     },
-    //testcases object needs to be changed I guess if we are using llms for code reviewing then its fine otherwise we have to make it precise enough for our dom structure
-    // testCases: [
-    //   {
-    //     input: {
-    //       type: mongoose.Schema.Types.Mixed,
-    //       required: true,
-    //     },
-    //     expectedOutput: {
-    //       type: mongoose.Schema.Types.Mixed,
-    //       required: true,
-    //     },
-    //     isHidden: {
-    //       type: Boolean,
-    //       default: false,
-    //     },
-    //   },
-    // ],
   },
   { timestamps: true }
 );

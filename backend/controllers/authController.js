@@ -28,15 +28,13 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Validate email & password
   if (!email || !password) {
     return next(new ErrorResponse('Please provide an email and password', 400));
   }
-
   try {
     // Check for user
     const user = await User.findOne({ email }).select('+password');
-
+console.log(user)
     if (!user) {
       return next(new ErrorResponse('Invalid credentials', 401));
     }
@@ -49,7 +47,7 @@ exports.login = async (req, res, next) => {
     }
 
     sendTokenResponse(user, 200, res);
-  } catch (err) {
+  } catch (err) {   
     next(err);
   }
 };
@@ -83,8 +81,10 @@ const sendTokenResponse = (user, statusCode, res) => {
     secure: process.env.NODE_ENV === 'production',
   };
 
-  res.status(statusCode).json({
+  res.cookie('token', token, options).status(statusCode).json({
     success: true,
     token,
   });
+
+
 };

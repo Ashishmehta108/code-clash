@@ -16,10 +16,14 @@ const submissionSchema = new mongoose.Schema(
       ref: 'Task',
       required: [true, 'Task ID is required'],
     },
-    //figure out a way to store code files 
-    code: {
+    codeUrl: {
       type: String,
       required: [true, 'Code is required'],
+    },
+
+    imageUrl: {
+      type: String,
+      required: [true, 'Image is required'],
     },
     status: {
       type: String,
@@ -40,19 +44,10 @@ const submissionSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    executionTime: {
-      type: Number,
-      default: 0,
-    },
-    language: {
-      type: String,
-      required: [true, 'Programming language is required'],
-    },
   },
   { timestamps: true }
 );
 
-// submissionSchema.index({ user: 1, task: 1 });
 
 const Submission = mongoose.model('Submission', submissionSchema);
 

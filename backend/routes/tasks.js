@@ -14,26 +14,19 @@ const {
   validateTaskId
 } = require('../middleware/validators/taskValidator');
 
-// Public routes
-//get all tasks
 router.route('/')
   .get(getTasks);
 
-//get single task
 router.route('/:id')
   .get(validateTaskId, getTask);
 
-// Protected routes (admin only)
+router.use(protect);
 
-router.use(protect, authorize('admin'));
-
-//create a task
 router.route('/')
-  .post(validateCreateTask, createTask);
+  .post(authorize('admin'), validateCreateTask, createTask);
 
-//update and delete a task
 router.route('/:id')
-  .put(validateTaskId, validateUpdateTask, updateTask)
-  .delete(validateTaskId, deleteTask);
+  .put(authorize('admin'), validateTaskId, validateUpdateTask, updateTask)
+  .delete(authorize('admin'), validateTaskId, deleteTask);
 
 module.exports = router;

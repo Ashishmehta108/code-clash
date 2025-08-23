@@ -29,27 +29,12 @@ exports.getTasks = async (req, res, next) => {
 // @access  Public
 exports.getTask = async (req, res, next) => {
   try {
-    // Validate task ID format
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return next(new ErrorResponse('Invalid task ID format', 400));
-    }
-
-    // Build query with optional field selection
-    let query = Task.findById(req.params.id).select('-__v');
-    
-    // Handle field selection if provided
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    }
-
-    // Execute query with timeout
-    const task = await Promise.race([
-      query.lean().exec(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Query timeout')), 5000)
-      )
-    ]);
+    const task = await Task.findById(req.params.id)
+      .populate({
+        path: 'submissions',
+        select: 'status score submittedAt',
+        options: { sort: { submittedAt: -1 }, limit: 5 }
+      });
 
     if (!task) {
       return next(
@@ -57,14 +42,10 @@ exports.getTask = async (req, res, next) => {
       );
     }
 
-    // Cache control headers (5 minutes)
-    res.set('Cache-Control', 'public, max-age=300');
-    res.set('ETag', `"${task._id}"`);
-    
-    // Handle conditional GET with If-None-Match
-    const clientETag = req.get('If-None-Match');
-    if (clientETag === `"${task._id}"`) {
-      return res.status(304).end();
+    // For non-admin users, don't expose solution and test cases
+    if (!req.user || req.user.role !== 'admin') {
+      task.solution = undefined;
+      task.testCases = undefined;
     }
 
     res.status(200).json({
@@ -81,7 +62,7 @@ exports.getTask = async (req, res, next) => {
 // @access  Private/Admin
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, dependencies, difficulty, points, testCases, assets } = req.body;
+    const { title, description, subTasks, difficulty, points } = req.body;
 
     // Validate required fields
     if (!title || !description) {
@@ -92,29 +73,10 @@ exports.createTask = async (req, res, next) => {
     const taskData = {
       title: title.trim(),
       description: description.trim(),
-      dependencies: Array.isArray(dependencies) ? dependencies : [],
-      assets: {
-        logo: assets?.logo?.trim() || '',
-        fontSize: assets?.fontSize?.trim() || '16px',
-      },
+      subTasks: Array.isArray(subTasks) ? subTasks : [],
       difficulty: ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium',
       points: Number.isInteger(points) && points >= 0 ? points : 10,
-      // testCases: Array.isArray(testCases) ? testCases : [],
     };
-
-    // Validate test cases structure if provided
-    // if (taskData.testCases.length > 0) {
-    //   const isValidTestCases = taskData.testCases.every(testCase => 
-    //     testCase && 
-    //     typeof testCase === 'object' &&
-    //     'input' in testCase &&
-    //     'expectedOutput' in testCase
-    //   );
-
-    //   if (!isValidTestCases) {
-    //     return next(new ErrorResponse('Invalid test cases format', 400));
-    //   }
-    // }
 
     // Check for duplicate task title (case insensitive)
     const existingTask = await Task.findOne({ 
@@ -150,7 +112,7 @@ exports.updateTask = async (req, res, next) => {
     }
 
     // Prepare update data
-    const { title, description, dependencies, difficulty, points, assets } = req.body;
+    const { title, description, subTasks, difficulty, points } = req.body;
     const updateData = {};
 
     // Only update fields that are provided in the request
@@ -159,8 +121,9 @@ exports.updateTask = async (req, res, next) => {
     if (difficulty !== undefined) updateData.difficulty = difficulty;
     if (points !== undefined) updateData.points = points;
     
-    // Handle dependencies array update
-    if (dependencies !== undefined) {
+    // Handle subTasks array update
+    if (subTasks !== undefined) {
+      updateData.subTasks = Array.isArray(subTasks) ? subTasks : [];
       updateData.dependencies = Array.isArray(dependencies) ? dependencies : [];
     }
 

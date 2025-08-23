@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Submission = require('../models/Submission');
 const {
   getSubmissions,
   getSubmission,
@@ -15,21 +16,34 @@ router.use(protect);
 
 router
   .route('/')
-  // see all submissions for all tasks
   .get(authorize('admin'), getSubmissions)
-  //creates a submission
   .post(createSubmission);
 
 router
   .route('/:id')
-  // get a single submission by id
   .get(getSubmission)
-  // update submission status, result, score, feedback, executionTime
   .put(updateSubmission)
-  // delete a submission
   .delete(deleteSubmission);
 
-// Get all submissions for a specific task
 router.get('/task/:taskId', getSubmissionsForTask);
+
+// Get current user's submissions
+router.get('/me', async (req, res, next) => {
+  try {
+    const submissions = await Submission.find({ user: req.user.id })
+      .populate('task', 'title')
+      .sort('-submittedAt');
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      data: submissions,
+    });
+  } catch (err) {
+    res.json({
+      success: false,
+
+    })
+  }
+});
 
 module.exports = router;

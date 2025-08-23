@@ -1,10 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import axios from 'axios';
+import App from './App';
+import './index.css';
+import { Toaster } from 'sonner';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+// Set base URL for API requests
+axios.defaults.baseURL = 'http://localhost:5000/api';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Toaster position='top-right' expand={true} />
     <App />
-  </StrictMode>,
-)
+  </React.StrictMode>
+);

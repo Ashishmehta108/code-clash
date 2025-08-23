@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
-// const morgan = require('morgan');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 // const fileupload = require('express-fileupload');
 const errorHandler = require('./middleware/errorHandler');
 dotenv.config();
@@ -17,13 +18,16 @@ const submissionRoutes = require('./routes/submissions');
 //read line 5 submission.js model
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 // if (process.env.NODE_ENV === 'development') {
-//   app.use(morgan('combined'));
-// }
+app.use(morgan('dev'));
+
 
 // app.use(fileupload({
 //   limits: { fileSize: 10 * 1024 * 1024 },

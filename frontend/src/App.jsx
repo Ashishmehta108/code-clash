@@ -1,35 +1,85 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, Router } from 'react-router';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Task from './pages/Task';
+import SubmitSolution from './pages/SubmitSolution';
+import AdminLayout from './components/layout/AdminLayout';
+import TaskList from './pages/admin/Tasks';
+import SubmissionsList from './pages/admin/Submissions';
+import TaskForm from './components/tasks/TaskForm';
+
+// A wrapper for protected routes
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
+  return user ? children : <Navigate to="/login" />;
+};
+
+// A wrapper for admin-only routes
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  console.log(user.role)
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
+
+  // return user?.role == 'admin' ? children : <Navigate to="/" />;
+};
+
+// Admin layout wrapper
+const AdminLayoutWrapper = () => (
+  <AdminLayout>
+    <Outlet />
+  </AdminLayout>
+);
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter >
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Protected User Routes */}
+          <Route element={<PrivateRoute><Outlet /></PrivateRoute>}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/task/:id" element={<Task />} />
+            <Route path="/task/:id/submit" element={<SubmitSolution />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              // <PrivateRoute>
+              <AdminRoute>
+                <AdminLayoutWrapper />
+              </AdminRoute>
+              // </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="tasks" replace />} />
+            <Route path="tasks" element={<TaskList />} />
+            <Route path="tasks/new" element={<TaskForm />} />
+            <Route path="tasks/:id/edit" element={<TaskForm />} />
+            <Route path="submissions" element={<SubmissionsList />} />
+          </Route>
+
+          {/* Catch all other routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+
+  );
 }
 
-export default App
+export default App;

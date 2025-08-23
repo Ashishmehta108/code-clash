@@ -1,12 +1,67 @@
-# React + Vite
+# CodeClash - Coding Challenge Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for practicing coding challenges, built with React and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- User authentication (login/register)
+- Browse coding challenges by difficulty
+- Submit solutions to challenges
+- View submission history and results
+- Real-time code execution feedback
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js (v16 or higher)
+- npm or yarn
+- Backend server running (see backend README for setup)
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+3. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+## Project Structure
+
+- `/src` - Source code
+  - `/components` - Reusable UI components
+  - `/contexts` - React context providers
+  - `/pages` - Page components
+  - `/services` - API service layer
+  - `/utils` - Utility functions
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## Technologies Used
+
+- React 18
+- React Router 6
+- Axios for API requests
+- Tailwind CSS for styling
+- Vite for build tooling

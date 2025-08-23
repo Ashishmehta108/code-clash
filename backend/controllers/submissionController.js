@@ -75,46 +75,74 @@ exports.getSubmission = async (req, res, next) => {
 // @route   POST /api/submissions
 // @access  Private
 exports.createSubmission = async (req, res, next) => {
-  try {
-    req.body.user = req.user.id;
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    const task = await Task.findById(req.body.task);
+  try {
+    const { taskId, codeUrl, imageUrl, language } = req.body;
+    const userId = req.user.id;
+
+    // Validate required fields
+    if (!taskId || !codeUrl || !language) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new ErrorResponse('Task ID, code (or codeUrl), and language are required', 400));
+    }
+
+    // Check if task exists and is active
+    const task = await Task.findOne({ _id: taskId, status: 'active' })
+      .session(session);
 
     if (!task) {
-      return next(
-        new ErrorResponse(`No task with the id of ${req.body.task}`, 404)
-      );
+      await session.abortTransaction();
+      session.endSession();
+      return next(new ErrorResponse('Task not found or not active', 404));
     }
 
-    // Check if user already submitted for this task
+    // Check if user has already submitted for this task
     const existingSubmission = await Submission.findOne({
-      user: req.user.id,
-      task: req.body.task,
-    });
+      user: userId,
+      task: taskId,
+    }).session(session);
 
     if (existingSubmission) {
+      await session.abortTransaction();
+      session.endSession();
       return next(
-        new ErrorResponse(
-          `You have already submitted a solution for this task`,
-          400
-        )
+        new ErrorResponse('You have already submitted a solution for this task', 400)
       );
     }
 
-    const submission = await Submission.create(req.body);
+    // Create submission
+    const submissionData = {
+      user: userId,
+      task: taskId,
+      language,
+      status: 'pending',
+      submittedAt: new Date(),
+      codeUrl,
+      imageUrl
+    };
 
-    // TODO: Add code evaluation logic here
-    // This would involve:
-    // 1. Extracting the code from the submission
-    // 2. Running tests against it
-    // 3. Updating the submission status and result
+    const submission = await Submission.create([submissionData], { session });
 
+    // Update task's submissions count (optional)
+    task.submissionCount = (task.submissionCount || 0) + 1;
+    await task.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // In a real app, you would process the submission asynchronously
+    // and update the status based on test results
 
     res.status(201).json({
       success: true,
-      data: submission,
+      data: submission[0],
     });
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
     next(err);
   }
 };
@@ -125,6 +153,7 @@ exports.createSubmission = async (req, res, next) => {
 exports.updateSubmission = async (req, res, next) => {
   try {
     let submission = await Submission.findById(req.params.id);
+    const { status, score } = req.body;
 
     if (!submission) {
       return next(
@@ -144,8 +173,10 @@ exports.updateSubmission = async (req, res, next) => {
         )
       );
     }
-
-    submission = await Submission.findByIdAndUpdate(req.params.id, req.body, {
+    submission = await Submission.findByIdAndUpdate(req.params.id, {
+      status,
+      score
+    }, {
       new: true,
       runValidators: true,
     });
@@ -184,10 +215,7 @@ exports.deleteSubmission = async (req, res, next) => {
         )
       );
     }
-
-    // ✅ Use deleteOne instead of remove
     await submission.deleteOne();
-
     res.status(200).json({
       success: true,
       data: {},
@@ -203,16 +231,47 @@ exports.deleteSubmission = async (req, res, next) => {
 // @access  Private
 exports.getSubmissionsForTask = async (req, res, next) => {
   try {
-    const submissions = await Submission.find({ task: req.params.taskId })
+    const { taskId } = req.params;
+    const userId = req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    // For non-admin users, only allow access to their own submissions
+    const query = isAdmin
+      ? { task: taskId }
+      : { task: taskId, user: userId };
+
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count
+    const total = await Submission.countDocuments(query);
+
+    // Build query
+    let submissionsQuery = Submission.find(query)
       .populate({
         path: 'user',
-        select: 'username email',
+        select: 'username name',
       })
-      .sort('-createdAt');
+      .sort({ submittedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // For non-admin users, don't expose other users' code
+    if (!isAdmin) {
+      submissionsQuery = submissionsQuery.select('-code -codeUrl');
+    }
+
+    const submissions = await submissionsQuery;
+    const pages = Math.ceil(total / limit);
 
     res.status(200).json({
       success: true,
       count: submissions.length,
+      total,
+      page,
+      pages,
       data: submissions,
     });
   } catch (err) {
