@@ -26,10 +26,11 @@ export default function TaskDetail() {
 
   const submit = async () => {
     setErr("");
-    if (!code.trim()) return setErr("Code is required");
+
     setSubmitting(true);
     try {
-      await createSubmissionApi({ task: id, code, language });
+      console.log("code",code)
+      await createSubmissionApi({ task: id, codeLink:code });
       nav(`/task/${id}/submissions`);
     } catch (e) {
       setErr(e?.response?.data?.message || "Submission failed");
@@ -72,21 +73,23 @@ export default function TaskDetail() {
 
       <div className="bg-white border rounded-xl p-5 space-y-3">
         <div className="flex items-center gap-3">
-          <label className="text-sm">Language</label>
-          <select value={language} onChange={e=>setLanguage(e.target.value)}
+          <label className="text-sm">solve</label>
+          {/* <select value={language} onChange={e=>setLanguage(e.target.value)}
             className="border rounded px-2 py-1">
             <option>javascript</option>
             <option>python</option>
             <option>cpp</option>
             <option>java</option>
-          </select>
+          </select> */}
           <Link className="ml-auto text-sm text-blue-600" to={`/task/${id}/submissions`}>View my submissions</Link>
         </div>
 
         {/* Simple textarea editor (swap with Monaco if you like) */}
-        <textarea value={code} onChange={e=>setCode(e.target.value)}
+        {/* <textarea value={code} onChange={e=>setCode(e.target.value)}
           placeholder="// write your solution here"
-          className="w-full h-64 border rounded-lg p-3 font-mono text-sm"></textarea>
+          className="w-full h-64 border rounded-lg p-3 font-mono text-sm"></textarea> */}
+<label for="code">github repo link here</label>
+          <input className="border border-black" id="code" value={code} onChange={e=>setCode(e.target.value)}></input>
 
         {/* Monaco version:
         <Editor height="350px" language={language === 'cpp' ? 'cpp' : language}

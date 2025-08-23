@@ -45,7 +45,6 @@ const submissionSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      required: [true, 'Programming language is required'],
     },
   },
   { timestamps: true }

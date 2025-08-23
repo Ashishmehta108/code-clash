@@ -4,6 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const { validationResult } = require('express-validator');
 const Submission = require('../models/Submission');
 const cloudinary = require('../config/cloudinary');
+const fs = require("fs").promises;
 
 // =============================
 // @desc    Get all tasks
@@ -77,9 +78,12 @@ exports.getTask = async (req, res, next) => {
 // @route   POST /api/tasks
 // @access  Private/Admin
 // =============================
+
+
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, difficulty, points, assets } = req.body;
+    const { title, description, difficulty, points, assets, dependencies } = req.body;
+    console.log("Images:", req.files.images?.map(f => f.originalname));
 
     if (!title || !description) {
       return next(new ErrorResponse('Title and description are required', 400));
@@ -97,32 +101,41 @@ exports.createTask = async (req, res, next) => {
     let uiImageUrl = '';
     let logoUrl = '';
     let imagesArray = [];
-    console.log(req.files.uiImage, req.body)
+
+    // Upload UI Image
     if (req.files?.uiImage) {
       const upload = await cloudinary.uploader.upload(req.files.uiImage[0].path, {
         folder: 'tasks/ui',
       });
       uiImageUrl = upload.secure_url;
-      console.log(uiImageUrl)
+
+      // Delete local file
+      await fs.unlink(req.files.uiImage[0].path);
     } else {
       return next(new ErrorResponse('UI image is required', 400));
     }
 
+    // Upload Logo
     if (req.files?.logo) {
       const upload = await cloudinary.uploader.upload(req.files.logo[0].path, {
         folder: 'tasks/logo',
       });
-      console.log(logoUrl)
       logoUrl = upload.secure_url;
+
+      // Delete local file
+      await fs.unlink(req.files.logo[0].path);
     }
 
+    // Upload multiple images
     if (req.files?.images) {
       for (let file of req.files.images) {
         const upload = await cloudinary.uploader.upload(file.path, {
           folder: 'tasks/assets',
         });
-        console.log(req.files.images)
         imagesArray.push(upload.secure_url);
+
+        // Delete local file
+        await fs.unlink(file.path);
       }
     }
 
@@ -131,18 +144,17 @@ exports.createTask = async (req, res, next) => {
       title: title.trim(),
       description: description.trim(),
       uiImage: uiImageUrl,
+      dependencies: dependencies,
       assets: {
         logo: logoUrl,
         images: imagesArray,
         fontSize: assets?.fontSize || '16px',
         fontFamily: assets?.fontFamily || 'Arial, sans-serif',
       },
-      difficulty: ['easy', 'medium', 'hard'].includes(difficulty)
-        ? difficulty
-        : 'medium',
+      difficulty: ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'medium',
       points: Number.isInteger(points) && points >= 0 ? points : 10,
     };
-    console.log(taskData)
+
     const task = await Task.create(taskData);
 
     res.status(201).json({

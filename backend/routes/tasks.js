@@ -32,6 +32,7 @@ router.use(protect, authorize('admin'));
 // Create a task with file uploads
 router.route('/')
   .post(
+
     upload.fields([
       { name: 'uiImage', maxCount: 1 },      // required UI image
       { name: 'logo', maxCount: 1 },         // optional logo
