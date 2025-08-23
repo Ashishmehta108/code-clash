@@ -12,21 +12,24 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a description'],
     },
-    dependencies: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+
+    // Required UI image (main image for the task)
+    uiImage: {
+      type: String,
+      required: [true, 'Please provide a UI image'],
+    },
+
+    // Additional assets (logo + multiple images + style props)
     assets: {
       logo: {
         type: String,
         default: '',
       },
-      image:{
-        type: String,
-        default: '',
-      },
+      images: [
+        {
+          type: String, // Cloudinary URLs
+        },
+      ],
       fontSize: {
         type: String,
         default: '16px',
@@ -34,9 +37,9 @@ const taskSchema = new mongoose.Schema(
       fontFamily: {
         type: String,
         default: 'Arial, sans-serif',
+      },
     },
 
-  },
     difficulty: {
       type: String,
       enum: ['easy', 'medium', 'hard'],
@@ -46,23 +49,6 @@ const taskSchema = new mongoose.Schema(
       type: Number,
       default: 10,
     },
-    //testcases object needs to be changed I guess if we are using llms for code reviewing then its fine otherwise we have to make it precise enough for our dom structure
-    // testCases: [
-    //   {
-    //     input: {
-    //       type: mongoose.Schema.Types.Mixed,
-    //       required: true,
-    //     },
-    //     expectedOutput: {
-    //       type: mongoose.Schema.Types.Mixed,
-    //       required: true,
-    //     },
-    //     isHidden: {
-    //       type: Boolean,
-    //       default: false,
-    //     },
-    //   },
-    // ],
   },
   { timestamps: true }
 );

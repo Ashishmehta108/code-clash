@@ -11,19 +11,17 @@ const validate = (validations) => {
       return next();
     }
 
-    const errorMessages = errors.array().map(err => ({
-      field: err.param,
-      message: err.msg
-    }));
-
     return res.status(400).json({
       success: false,
-      errors: errorMessages
+      errors: errors.array().map(err => ({
+        field: err.path,
+        message: err.msg
+      }))
     });
   };
 };
 
-// Validate MongoDB ObjectId
+// MongoDB ObjectId validation helper
 const validateObjectId = (id) => {
   if (!isValidObjectId(id)) {
     throw new Error('Invalid ID format');
@@ -31,98 +29,79 @@ const validateObjectId = (id) => {
   return true;
 };
 
-// Task creation validation rules
+// -------- Validation Rules --------
+
+// Task creation
 exports.validateCreateTask = validate([
   body('title')
     .trim()
     .notEmpty().withMessage('Title is required')
-    .isLength({ max: 100 }).withMessage('Title cannot be more than 100 characters'),
-    
+    .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
+
   body('description')
     .trim()
     .notEmpty().withMessage('Description is required'),
-    
+
   body('dependencies')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isArray().withMessage('Dependencies must be an array')
-    .custom((deps) => {
-      if (!Array.isArray(deps)) return true;
-      return deps.every(dep => typeof dep === 'string');
-    }).withMessage('Each dependency must be a string'),
-    
+    .custom((deps) => deps.every(dep => typeof dep === 'string'))
+    .withMessage('Each dependency must be a string'),
+
   body('assets')
-    .optional({ checkFalsy: true })
-    .isObject().withMessage('Assets must be an object')
-    .customSanitizer(assets => {
-      if (!assets) return {};
-      return assets;
-    }),
-    
+    .optional({ nullable: true })
+    .isObject().withMessage('Assets must be an object'),
+
   body('assets.logo')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isString().withMessage('Logo must be a string'),
-    
+
   body('assets.fontSize')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isString().withMessage('Font size must be a string'),
-    
+
   body('difficulty')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isIn(['easy', 'medium', 'hard']).withMessage('Difficulty must be one of: easy, medium, hard'),
-    
+
   body('points')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isInt({ min: 0 }).withMessage('Points must be a positive integer'),
-    
-  // body('testCases')
-  //   .optional({ checkFalsy: true })
-  //   .isArray().withMessage('Test cases must be an array')
-  //   .custom((testCases) => {
-  //     if (!Array.isArray(testCases)) return true;
-  //     return testCases.every(testCase => 
-  //       testCase && 
-  //       typeof testCase === 'object' &&
-  //       'input' in testCase &&
-  //       'expectedOutput' in testCase
-  //     );
-  //   }).withMessage('Each test case must have input and expectedOutput')
 ]);
 
-// Task update validation rules
+// Task update
 exports.validateUpdateTask = validate([
   param('id')
     .custom(validateObjectId)
     .withMessage('Invalid task ID format'),
-    
+
   body('title')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .trim()
-    .isLength({ max: 100 }).withMessage('Title cannot be more than 100 characters'),
-    
+    .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
+
   body('dependencies')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isArray().withMessage('Dependencies must be an array')
-    .custom((deps) => {
-      if (!Array.isArray(deps)) return true;
-      return deps.every(dep => typeof dep === 'string');
-    }).withMessage('Each dependency must be a string'),
-    
+    .custom((deps) => deps.every(dep => typeof dep === 'string'))
+    .withMessage('Each dependency must be a string'),
+
   body('assets')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isObject().withMessage('Assets must be an object'),
-    
+
   body('difficulty')
-    .optional({ checkFalsy: true })
+    .optional({ nullable: true })
     .isIn(['easy', 'medium', 'hard']).withMessage('Difficulty must be one of: easy, medium, hard'),
-    
+
   body('points')
-    .optional({ checkFalsy: true })
-    .isInt({ min: 0 }).withMessage('Points must be a positive integer')
+    .optional({ nullable: true })
+    .isInt({ min: 0 }).withMessage('Points must be a positive integer'),
 ]);
 
-// Task ID validation
+// Task ID only
 exports.validateTaskId = validate([
   param('id')
     .custom(validateObjectId)
-    .withMessage('Invalid task ID format')
+    .withMessage('Invalid task ID format'),
 ]);

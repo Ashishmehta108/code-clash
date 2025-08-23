@@ -16,8 +16,7 @@ const submissionSchema = new mongoose.Schema(
       ref: 'Task',
       required: [true, 'Task ID is required'],
     },
-    //figure out a way to store code files 
-    code: {
+    codeLink: {
       type: String,
       required: [true, 'Code is required'],
     },

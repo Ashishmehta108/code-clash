@@ -1,10 +1,8 @@
 const Submission = require('../models/Submission');
 const Task = require('../models/Task');
 const ErrorResponse = require('../utils/errorResponse');
-const path = require('path');
+
 const fs = require('fs');
-const { promisify } = require('util');
-const unlinkAsync = promisify(fs.unlink);
 
 // @desc    Get all submissions
 // @route   GET /api/submissions
@@ -85,7 +83,6 @@ exports.createSubmission = async (req, res, next) => {
         new ErrorResponse(`No task with the id of ${req.body.task}`, 404)
       );
     }
-
     // Check if user already submitted for this task
     const existingSubmission = await Submission.findOne({
       user: req.user.id,
@@ -100,16 +97,7 @@ exports.createSubmission = async (req, res, next) => {
         )
       );
     }
-
     const submission = await Submission.create(req.body);
-
-    // TODO: Add code evaluation logic here
-    // This would involve:
-    // 1. Extracting the code from the submission
-    // 2. Running tests against it
-    // 3. Updating the submission status and result
-
-
     res.status(201).json({
       success: true,
       data: submission,

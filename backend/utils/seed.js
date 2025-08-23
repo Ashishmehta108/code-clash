@@ -23,11 +23,11 @@ const users = [
     password: 'admin123',
     role: 'admin',
   },
-  {
-    username: 'user1',
-    email: 'user1@codeclash.com',
-    password: 'password123',
-  },
+    {
+      username: 'user1',
+      email: 'user1@codeclash.com',
+      password: 'password123',
+    },
   {
     username: 'user2',
     email: 'user2@codeclash.com',
@@ -54,6 +54,10 @@ const tasks = [
         isHidden: false,
       },
     ],
+    assets: {
+      logo: 'logo.png',
+      fontSize: '16px',
+    },
   },
   {
     title: 'Implement Authentication',
@@ -66,6 +70,7 @@ const tasks = [
         input: { username: 'test', password: 'test123' },
         expectedOutput: 'JWT token',
         isHidden: true,
+        
       },
     ],
   },

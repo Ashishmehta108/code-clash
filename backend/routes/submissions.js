@@ -18,7 +18,9 @@ router
   // see all submissions for all tasks
   .get(authorize('admin'), getSubmissions)
   //creates a submission
-  .post(createSubmission);
+  .post(createSubmission)
+  //updates a submission
+  .put(updateSubmission);
 
 router
   .route('/:id')

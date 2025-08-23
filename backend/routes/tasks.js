@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // temporary local storage
 const {
   getTasks,
   getTask,
@@ -14,26 +16,43 @@ const {
   validateTaskId
 } = require('../middleware/validators/taskValidator');
 
-// Public routes
-//get all tasks
+// ------------------- Public routes -------------------
+
+// Get all tasks
 router.route('/')
   .get(getTasks);
 
-//get single task
+// Get single task
 router.route('/:id')
   .get(validateTaskId, getTask);
 
-// Protected routes (admin only)
-
+// ------------------- Protected routes (admin only) -------------------
 router.use(protect, authorize('admin'));
 
-//create a task
+// Create a task with file uploads
 router.route('/')
-  .post(validateCreateTask, createTask);
+  .post(
+    upload.fields([
+      { name: 'uiImage', maxCount: 1 },      // required UI image
+      { name: 'logo', maxCount: 1 },         // optional logo
+      { name: 'images', maxCount: 10 },      // multiple asset images
+    ]),
+    validateCreateTask,
+    createTask
+  );
 
-//update and delete a task
+// Update task with optional file uploads
 router.route('/:id')
-  .put(validateTaskId, validateUpdateTask, updateTask)
+  .put(
+    validateTaskId,
+    upload.fields([
+      { name: 'uiImage', maxCount: 1 },
+      { name: 'logo', maxCount: 1 },
+      { name: 'images', maxCount: 10 },
+    ]),
+    validateUpdateTask,
+    updateTask
+  )
   .delete(validateTaskId, deleteTask);
 
 module.exports = router;
