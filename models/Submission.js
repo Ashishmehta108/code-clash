@@ -16,6 +16,7 @@ const submissionSchema = new mongoose.Schema(
       ref: 'Task',
       required: [true, 'Task ID is required'],
     },
+    //figure out a way to store code files 
     code: {
       type: String,
       required: [true, 'Code is required'],
@@ -51,7 +52,7 @@ const submissionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-submissionSchema.index({ user: 1, task: 1 });
+// submissionSchema.index({ user: 1, task: 1 });
 
 const Submission = mongoose.model('Submission', submissionSchema);
 

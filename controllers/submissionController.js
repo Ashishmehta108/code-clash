@@ -9,17 +9,33 @@ const unlinkAsync = promisify(fs.unlink);
 // @desc    Get all submissions
 // @route   GET /api/submissions
 // @access  Private/Admin
+
+//
+// @desc    Get all submissions
+// @route   GET /api/submissions
+// @access  Private
 exports.getSubmissions = async (req, res, next) => {
   try {
-    res.status(200).json(res.advancedResults);
+    const submissions = await Submission.find()
+      .populate("user", "name email")   // show user info
+      .populate("task", "title");       // show task title only
+
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      data: submissions,
+    });
   } catch (err) {
     next(err);
   }
 };
 
+
 // @desc    Get single submission
 // @route   GET /api/submissions/:id
 // @access  Private
+
+
 exports.getSubmission = async (req, res, next) => {
   try {
     const submission = await Submission.findById(req.params.id).populate({
@@ -169,7 +185,8 @@ exports.deleteSubmission = async (req, res, next) => {
       );
     }
 
-    await submission.remove();
+    // ✅ Use deleteOne instead of remove
+    await submission.deleteOne();
 
     res.status(200).json({
       success: true,
@@ -179,6 +196,7 @@ exports.deleteSubmission = async (req, res, next) => {
     next(err);
   }
 };
+
 
 // @desc    Get submissions for a specific task
 // @route   GET /api/tasks/:taskId/submissions

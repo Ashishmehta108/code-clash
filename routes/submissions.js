@@ -15,13 +15,18 @@ router.use(protect);
 
 router
   .route('/')
+  // see all submissions for all tasks
   .get(authorize('admin'), getSubmissions)
+  //creates a submission
   .post(createSubmission);
 
 router
   .route('/:id')
+  // get a single submission by id
   .get(getSubmission)
+  // update submission status, result, score, feedback, executionTime
   .put(updateSubmission)
+  // delete a submission
   .delete(deleteSubmission);
 
 // Get all submissions for a specific task

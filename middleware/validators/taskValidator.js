@@ -74,18 +74,18 @@ exports.validateCreateTask = validate([
     .optional({ checkFalsy: true })
     .isInt({ min: 0 }).withMessage('Points must be a positive integer'),
     
-  body('testCases')
-    .optional({ checkFalsy: true })
-    .isArray().withMessage('Test cases must be an array')
-    .custom((testCases) => {
-      if (!Array.isArray(testCases)) return true;
-      return testCases.every(testCase => 
-        testCase && 
-        typeof testCase === 'object' &&
-        'input' in testCase &&
-        'expectedOutput' in testCase
-      );
-    }).withMessage('Each test case must have input and expectedOutput')
+  // body('testCases')
+  //   .optional({ checkFalsy: true })
+  //   .isArray().withMessage('Test cases must be an array')
+  //   .custom((testCases) => {
+  //     if (!Array.isArray(testCases)) return true;
+  //     return testCases.every(testCase => 
+  //       testCase && 
+  //       typeof testCase === 'object' &&
+  //       'input' in testCase &&
+  //       'expectedOutput' in testCase
+  //     );
+  //   }).withMessage('Each test case must have input and expectedOutput')
 ]);
 
 // Task update validation rules
