@@ -3,7 +3,6 @@ const Task = require('../models/Task');
 const Submission = require('../models/Submission');
 const ErrorResponse = require('../utils/errorResponse');
 const { validationResult } = require('express-validator');
-const Submission = require('../models/Submission');
 
 
 // =============================
