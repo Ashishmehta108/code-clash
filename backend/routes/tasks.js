@@ -32,6 +32,7 @@ router.use(protect, authorize('admin'));
 
 router.route('/')
   .post(
+
     upload.fields([
       { name: 'uiImage', maxCount: 1 },
       { name: 'logo', maxCount: 1 },

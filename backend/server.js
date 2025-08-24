@@ -11,7 +11,9 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const submissionRoutes = require('./routes/submissions');
-
+// const uploadRouter = require('./routes/uploadRoute');
+// const upload = require('./middleware/multer');
+// const { uploadImage } = require('./controllers/uploadController');
 
 
 // read line 40 Task.js model 
@@ -34,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/submissions', submissionRoutes);
+// app.use("/api/upload", uploadRouter)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
 });
@@ -43,6 +46,7 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   connectDB()
 });
+
 
 
 app.use(errorHandler);
