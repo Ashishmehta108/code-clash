@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // temporary local storage
+const upload = require("../middleware/multer");
+const { uploadImage } = require("../controllers/uploadController")
 const {
   getTasks,
   getTask,
@@ -29,19 +29,19 @@ router.route('/:id')
 // ------------------- Protected routes (admin only) -------------------
 router.use(protect, authorize('admin'));
 
-// Create a task with file uploads
+
 router.route('/')
   .post(
     upload.fields([
-      { name: 'uiImage', maxCount: 1 },      // required UI image
-      { name: 'logo', maxCount: 1 },         // optional logo
-      { name: 'images', maxCount: 10 },      // multiple asset images
+      { name: 'uiImage', maxCount: 1 },
+      { name: 'logo', maxCount: 1 },
+      { name: 'images', maxCount: 10 },
     ]),
     validateCreateTask,
+    uploadImage,
     createTask
   );
 
-// Update task with optional file uploads
 router.route('/:id')
   .put(
     validateTaskId,
@@ -50,6 +50,7 @@ router.route('/:id')
       { name: 'logo', maxCount: 1 },
       { name: 'images', maxCount: 10 },
     ]),
+    uploadImage,
     validateUpdateTask,
     updateTask
   )

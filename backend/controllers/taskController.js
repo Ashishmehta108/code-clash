@@ -3,7 +3,6 @@ const Task = require('../models/Task');
 const ErrorResponse = require('../utils/errorResponse');
 const { validationResult } = require('express-validator');
 const Submission = require('../models/Submission');
-const cloudinary = require('../config/cloudinary');
 
 // =============================
 // @desc    Get all tasks
@@ -80,7 +79,7 @@ exports.getTask = async (req, res, next) => {
 exports.createTask = async (req, res, next) => {
   try {
     const { title, description, difficulty, points, assets } = req.body;
-
+    console.log("Images:", req.files.images?.map(f => f.originalname));
     if (!title || !description) {
       return next(new ErrorResponse('Title and description are required', 400));
     }
@@ -93,37 +92,21 @@ exports.createTask = async (req, res, next) => {
       return next(new ErrorResponse('Task with this title already exists', 400));
     }
 
-    // ===== File Uploads =====
+    // Map uploaded files from middleware
     let uiImageUrl = '';
     let logoUrl = '';
     let imagesArray = [];
-    console.log(req.files.uiImage, req.body)
-    if (req.files?.uiImage) {
-      const upload = await cloudinary.uploader.upload(req.files.uiImage[0].path, {
-        folder: 'tasks/ui',
-      });
-      uiImageUrl = upload.secure_url;
-      console.log(uiImageUrl)
-    } else {
-      return next(new ErrorResponse('UI image is required', 400));
-    }
 
-    if (req.files?.logo) {
-      const upload = await cloudinary.uploader.upload(req.files.logo[0].path, {
-        folder: 'tasks/logo',
-      });
-      console.log(logoUrl)
-      logoUrl = upload.secure_url;
-    }
-
-    if (req.files?.images) {
-      for (let file of req.files.images) {
-        const upload = await cloudinary.uploader.upload(file.path, {
-          folder: 'tasks/assets',
-        });
-        console.log(req.files.images)
-        imagesArray.push(upload.secure_url);
+    if (req.uploadedFiles?.length) {
+      for (const file of req.uploadedFiles) {
+        if (file.field === 'uiImage') uiImageUrl = file.url;
+        if (file.field === 'logo') logoUrl = file.url;
+        if (file.field === 'images') imagesArray.push(file.url);
       }
+    }
+
+    if (!uiImageUrl) {
+      return next(new ErrorResponse('UI image is required', 400));
     }
 
     // ===== Build Task Data =====
@@ -142,7 +125,7 @@ exports.createTask = async (req, res, next) => {
         : 'medium',
       points: Number.isInteger(points) && points >= 0 ? points : 10,
     };
-    console.log(taskData)
+
     const task = await Task.create(taskData);
 
     res.status(201).json({
@@ -170,30 +153,15 @@ exports.updateTask = async (req, res, next) => {
 
     const { title, description, difficulty, points, assets } = req.body;
 
-    // Handle uploads
-    if (req.files?.uiImage) {
-      const upload = await cloudinary.uploader.upload(req.files.uiImage[0].path, {
-        folder: 'tasks/ui',
-      });
-      task.uiImage = upload.secure_url;
-    }
-
-    if (req.files?.logo) {
-      const upload = await cloudinary.uploader.upload(req.files.logo[0].path, {
-        folder: 'tasks/logo',
-      });
-      task.assets.logo = upload.secure_url;
-    }
-
-    if (req.files?.images) {
-      const uploadedImgs = [];
-      for (let file of req.files.images) {
-        const upload = await cloudinary.uploader.upload(file.path, {
-          folder: 'tasks/assets',
-        });
-        uploadedImgs.push(upload.secure_url);
+    if (req.uploadedFiles?.length) {
+      for (const file of req.uploadedFiles) {
+        if (file.field === 'uiImage') task.uiImage = file.url;
+        if (file.field === 'logo') task.assets.logo = file.url;
+        if (file.field === 'images') {
+          if (!Array.isArray(task.assets.images)) task.assets.images = [];
+          task.assets.images.push(file.url);
+        }
       }
-      task.assets.images = uploadedImgs;
     }
 
     if (title !== undefined) task.title = title.trim();
@@ -238,7 +206,7 @@ exports.deleteTask = async (req, res, next) => {
     }
 
     await Submission.deleteMany({ task: taskId });
-    const deletedTask = await Task.findByIdAndDelete(taskId);
+    await Task.findByIdAndDelete(taskId);
 
     res.status(200).json({
       success: true,
