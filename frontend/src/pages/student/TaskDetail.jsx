@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getTaskApi } from "../../api/tasks";
 import { createSubmissionApi } from "../../api/submissions";
-<<<<<<< HEAD
-import Editor from "@monaco-editor/react";
-import { LiveProvider, LiveEditor, LivePreview } from "react-live";
-import React from 'react'
-
-=======
 import { DownloadIcon } from "lucide-react";
->>>>>>> 1504a6e05d9f946aa58aff52046a48b4f88ab45d
 export default function TaskDetail() {
   const { id } = useParams();
   const nav = useNavigate();
@@ -36,12 +29,7 @@ export default function TaskDetail() {
     setErr("");
     setSubmitting(true);
     try {
-<<<<<<< HEAD
-      console.log("code",code)
-      await createSubmissionApi({ task: id, codeLink:code,deploymentLink:deployment });
-=======
       await createSubmissionApi({ task: id, codeLink: code });
->>>>>>> 1504a6e05d9f946aa58aff52046a48b4f88ab45d
       nav(`/task/${id}/submissions`);
     } catch (e) {
       setErr(e?.response?.data?.message || "Submission failed");
@@ -58,13 +46,6 @@ export default function TaskDetail() {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="space-y-5">
-      <div className="bg-white border rounded-xl p-5">
-            <img className="h-40" src={task.uiImage} alt="task_image"/>
-        <div className="flex items-center gap-4">
-
-=======
     <div className="space-y-6 container max-w-3xl mx-auto">
       {/* Task Details */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">
@@ -85,7 +66,6 @@ export default function TaskDetail() {
               </a>
             </div>
           )}
->>>>>>> 1504a6e05d9f946aa58aff52046a48b4f88ab45d
           <div>
             <h1 className="text-2xl font-bold">{task.title}</h1>
             <p className="text-sm text-gray-500">
@@ -108,65 +88,6 @@ export default function TaskDetail() {
             </ul>
           </div>
         )}
-<<<<<<< HEAD
-{/* Download Section */}
-<div className="mt-4">
-  <h2 className="text-sm font-medium mb-2">Download Files</h2>
-
-  {/* Logo */}
-  {task.assets?.logo && (
-    <a
-      href={task.assets.logo.replace("/upload/", "/upload/fl_attachment/")}
-      className="block text-blue-600 underline"
-    >
-      Download Logo
-    </a>
-  )}
-
-  {/* Images */}
-  {Array.isArray(task.assets?.images) && task.assets.images.length > 0 && (
-    <div className="space-y-1">
-      {task.assets.images.map((img, idx) => (
-        <a
-          key={idx}
-          href={img.replace("/upload/", "/upload/fl_attachment/")}
-          className="block text-blue-600 underline"
-        >
-          Download Image {idx + 1}
-        </a>
-      ))}
-    </div>
-  )}
-</div>
-
-      </div>
-
-      <div className="bg-white border rounded-xl p-5 space-y-3">
-        <div className="flex items-center gap-3">
-          <label className="text-sm">solve</label>
-
-          <Link className="ml-auto text-sm text-blue-600" to={`/task/${id}/submissions`}>View my submissions</Link>
-        </div>
-
-        {/* Simple textarea editor (swap with Monaco if you like) */}
-  
-<label for="code">github repo link here</label>
-          <input className="border border-black" id="code" value={code} onChange={e=>setCode(e.target.value)}></input>
-
-          <label for="deployment">deployment link here</label>
-          <input className="border border-black" id="deployment" value={deployment} onChange={e=>setDeployment(e.target.value)}></input>
-
-
-
-
-
-
-
-
-
-
-  
-=======
 
         {/* Images gallery */}
         {Array.isArray(task.assets?.images) && task.assets.images.length > 0 && (
@@ -210,7 +131,6 @@ export default function TaskDetail() {
           placeholder="Paste your GitHub repo link here"
           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
->>>>>>> 1504a6e05d9f946aa58aff52046a48b4f88ab45d
 
         {err && <p className="text-red-600 text-sm">{err}</p>}
 
