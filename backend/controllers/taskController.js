@@ -86,6 +86,7 @@ exports.createTask = async (req, res, next) => {
     if (!uiImageUrl) return next(new ErrorResponse('UI image is required', 400));
 
     const taskData = {
+      user:req.user,
       title: title.trim(),
       description: description.trim(),
       uiImage: uiImageUrl,

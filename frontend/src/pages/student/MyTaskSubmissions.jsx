@@ -31,9 +31,15 @@ export default function MyTaskSubmissions() {
           <li key={s._id} className="bg-white border rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="text-sm">
+                <div>
+                  <p>code</p>
+                  <p>{s.codeLink}</p>
+                  <p>deployment</p>
+                  <p>{s.deploymentLink}</p>
+                </div>
                 <div><span className="font-semibold">Status:</span> {s.status}</div>
                 {"score" in s && <div><span className="font-semibold">Score:</span> {s.score}</div>}
-                {s.executionTime!=null && <div><span className="font-semibold">Time:</span> {s.executionTime} ms</div>}
+                {/* {s.executionTime!=null && <div><span className="font-semibold">Time:</span> {s.executionTime} ms</div>} */}
                 <div className="text-xs text-gray-500">Submitted: {new Date(s.createdAt).toLocaleString()}</div>
               </div>
             </div>

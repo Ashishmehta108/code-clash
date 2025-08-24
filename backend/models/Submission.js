@@ -20,6 +20,10 @@ const submissionSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Code is required'],
     },
+    deploymentLink:{
+      type:String,
+      required:[true,'deployment link is required']
+    },
     status: {
       type: String,
       enum: ['pending', 'evaluating', 'passed', 'failed'],

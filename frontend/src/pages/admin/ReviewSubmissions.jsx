@@ -58,11 +58,20 @@ export default function ReviewSubmissions() {
                   <span className="font-semibold">User:</span>{" "}
                   {s.user?.username || s.user?.name || "N/A"} ({s.user?.email})
                 </div>
+                               <div>
+                  <span className="font-semibold">code:</span> {s.codeLink}
+                </div>
+                               <div>
+                  <span className="font-semibold">deployment Link:</span> {s.deploymentLink}
+                </div>
                 <div>
                   <span className="font-semibold">Status:</span> {s.status}
                 </div>
                 <div>
                   <span className="font-semibold">Score:</span> {s.score}
+                </div>
+                        <div>
+                  <span className="font-semibold">feedback:</span> {s.feedback}
                 </div>
                 {s.executionTime != null && (
                   <div>
@@ -74,12 +83,12 @@ export default function ReviewSubmissions() {
                   Submitted: {new Date(s.createdAt).toLocaleString()}
                 </div>
               </div>
-              <button
+              {/* <button
                 className="text-red-600"
                 onClick={() => remove(s._id)}
               >
                 Delete
-              </button>
+              </button> */}
             </div>
 
             <div className="grid md:grid-cols-3 gap-3 mt-3">
@@ -93,24 +102,17 @@ export default function ReviewSubmissions() {
                 <option value="passed">passed</option>
                 <option value="failed">failed</option>
               </select>
-
+<label htmlFor="score">score</label>
               <input
                 className="border rounded px-2 py-1"
+                id="score"
                 placeholder="Score (0-100)"
                 type="number"
                 value={s.score}
                 onChange={(e) => save(s._id, { score: Number(e.target.value) })}
               />
 
-              <input
-                className="border rounded px-2 py-1"
-                placeholder="Execution Time (ms)"
-                type="number"
-                value={s.executionTime ?? 0}
-                onChange={(e) =>
-                  save(s._id, { executionTime: Number(e.target.value) })
-                }
-              />
+
             </div>
 
             <textarea
