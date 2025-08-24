@@ -57,7 +57,7 @@ exports.getTask = async (req, res, next) => {
 // =============================
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, difficulty, points, assets } = req.body;
+    const { title, description, difficulty, points, assets ,dependencies} = req.body;
     console.log("Images:", req.files.images?.map(f => f.originalname));
     if (!title || !description) {
       return next(new ErrorResponse('Title and description are required', 400));
@@ -89,7 +89,7 @@ exports.createTask = async (req, res, next) => {
       title: title.trim(),
       description: description.trim(),
       uiImage: uiImageUrl,
-      dependencies: dependencies,
+      dependencies: req.body.dependencies,
       assets: {
         logo: logoUrl,
         images: imagesArray,
