@@ -141,6 +141,7 @@ exports.createTask = async (req, res, next) => {
 
     // ===== Build Task Data =====
     const taskData = {
+      user:req.user,
       title: title.trim(),
       description: description.trim(),
       uiImage: uiImageUrl,

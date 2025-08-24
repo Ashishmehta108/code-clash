@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getTaskApi } from "../../api/tasks";
 import { createSubmissionApi } from "../../api/submissions";
-// import Editor from "@monaco-editor/react"; // optional
+import Editor from "@monaco-editor/react";
+import { LiveProvider, LiveEditor, LivePreview } from "react-live";
+import React from 'react'
 
 export default function TaskDetail() {
   const { id } = useParams();
@@ -10,8 +12,11 @@ export default function TaskDetail() {
   const [task, setTask] = useState(null);
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState("");
+  const [deployment,setDeployment]=useState("")
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState("");
+
+
 
   useEffect(() => {
     (async () => {
@@ -30,7 +35,7 @@ export default function TaskDetail() {
     setSubmitting(true);
     try {
       console.log("code",code)
-      await createSubmissionApi({ task: id, codeLink:code });
+      await createSubmissionApi({ task: id, codeLink:code,deploymentLink:deployment });
       nav(`/task/${id}/submissions`);
     } catch (e) {
       setErr(e?.response?.data?.message || "Submission failed");
@@ -49,10 +54,9 @@ export default function TaskDetail() {
   return (
     <div className="space-y-5">
       <div className="bg-white border rounded-xl p-5">
+            <img className="h-40" src={task.uiImage} alt="task_image"/>
         <div className="flex items-center gap-4">
-          {task.assets?.image && (
-            <img src={task.assets.image} className="h-16 w-16 object-cover rounded-lg" />
-          )}
+
           <div>
             <h1 className="text-2xl font-bold">{task.title}</h1>
             <p className="text-sm text-gray-500">{task.points ?? 10} pts • {task.difficulty}</p>
@@ -69,32 +73,63 @@ export default function TaskDetail() {
             </ul>
           </div>
         )}
+{/* Download Section */}
+<div className="mt-4">
+  <h2 className="text-sm font-medium mb-2">Download Files</h2>
+
+  {/* Logo */}
+  {task.assets?.logo && (
+    <a
+      href={task.assets.logo.replace("/upload/", "/upload/fl_attachment/")}
+      className="block text-blue-600 underline"
+    >
+      Download Logo
+    </a>
+  )}
+
+  {/* Images */}
+  {Array.isArray(task.assets?.images) && task.assets.images.length > 0 && (
+    <div className="space-y-1">
+      {task.assets.images.map((img, idx) => (
+        <a
+          key={idx}
+          href={img.replace("/upload/", "/upload/fl_attachment/")}
+          className="block text-blue-600 underline"
+        >
+          Download Image {idx + 1}
+        </a>
+      ))}
+    </div>
+  )}
+</div>
+
       </div>
 
       <div className="bg-white border rounded-xl p-5 space-y-3">
         <div className="flex items-center gap-3">
           <label className="text-sm">solve</label>
-          {/* <select value={language} onChange={e=>setLanguage(e.target.value)}
-            className="border rounded px-2 py-1">
-            <option>javascript</option>
-            <option>python</option>
-            <option>cpp</option>
-            <option>java</option>
-          </select> */}
+
           <Link className="ml-auto text-sm text-blue-600" to={`/task/${id}/submissions`}>View my submissions</Link>
         </div>
 
         {/* Simple textarea editor (swap with Monaco if you like) */}
-        {/* <textarea value={code} onChange={e=>setCode(e.target.value)}
-          placeholder="// write your solution here"
-          className="w-full h-64 border rounded-lg p-3 font-mono text-sm"></textarea> */}
+  
 <label for="code">github repo link here</label>
           <input className="border border-black" id="code" value={code} onChange={e=>setCode(e.target.value)}></input>
 
-        {/* Monaco version:
-        <Editor height="350px" language={language === 'cpp' ? 'cpp' : language}
-          value={code} onChange={(v)=>setCode(v ?? '')} />
-        */}
+          <label for="deployment">deployment link here</label>
+          <input className="border border-black" id="deployment" value={deployment} onChange={e=>setDeployment(e.target.value)}></input>
+
+
+
+
+
+
+
+
+
+
+  
 
         {err && <p className="text-red-600 text-sm">{err}</p>}
         <button disabled={submitting}

@@ -40,6 +40,7 @@ export default function AdminDashboard() {
       <div className="grid md:grid-cols-2 gap-4">
         {tasks.map(t => (
           <div key={t._id} className="bg-white border rounded-xl p-5">
+               <img className="h-40" src={t.uiImage} alt="task_image"/>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">{t.title}</h2>
               <span className="text-xs text-gray-500">{t.points ?? 10} pts</span>
